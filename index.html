@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2 O'yinchili Iloncha O'yini</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --p1-color: #059669;
+      --p1-light: #10b981;
+      --p1-shadow: rgba(16, 185, 129, 0.25);
+      --p2-color: #2563eb;
+      --p2-light: #3b82f6;
+      --p2-shadow: rgba(37, 99, 235, 0.25);
+      --food-color: #dc2626;
+      --gold-food: #d97706;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: #f1f5f9;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, #ffffff 0%, #f1f5f9 100%);
+      color: var(--text-main);
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.3rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #059669, #2563eb, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+      font-weight: 900;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+    }
+
+    .main-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 25px;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    /* Player Cards */
+    .player-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 24px 20px;
+      width: 230px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .player-card.p1 {
+      border-top: 5px solid var(--p1-color);
+      box-shadow: 0 12px 30px var(--p1-shadow);
+    }
+
+    .player-card.p2 {
+      border-top: 5px solid var(--p2-color);
+      box-shadow: 0 12px 30px var(--p2-shadow);
+    }
+
+    .player-title {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+
+    .player-card.p1 .player-title { color: var(--p1-color); }
+    .player-card.p2 .player-title { color: var(--p2-color); }
+
+    .score-box {
+      font-size: 2.8rem;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      margin: 8px 0;
+      color: var(--text-main);
+    }
+
+    .wins-badge {
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 5px 14px;
+      border-radius: 20px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .controls-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .key-row {
+      display: flex;
+      gap: 5px;
+    }
+
+    .key {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-bottom: 3px solid #94a3b8;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #1e293b;
+      min-width: 36px;
+      text-align: center;
+      transition: all 0.1s;
+    }
+
+    /* Game Canvas Box */
+    .game-wrapper {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 2px 10px rgba(0, 0, 0, 0.04);
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+    }
+
+    canvas {
+      display: block;
+      background-color: #ffffff;
+    }
+
+    /* Overlay Screen (Game Over / Start / Pause) */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .overlay-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.1rem;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #0f172a;
+    }
+
+    .overlay-subtitle {
+      font-size: 1.1rem;
+      color: #475569;
+      margin-bottom: 25px;
+      text-align: center;
+      max-width: 80%;
+      font-weight: 500;
+    }
+
+    .btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      padding: 14px 34px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #ffffff;
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45);
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Options Bar */
+    .options-bar {
+      margin-top: 25px;
+      display: flex;
+      gap: 24px;
+      background: #ffffff;
+      padding: 12px 28px;
+      border-radius: 40px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+      font-size: 0.92rem;
+      align-items: center;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .option-item label {
+      color: #334155;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    select, input[type="checkbox"] {
+      background: #f8fafc;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+      border-radius: 8px;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+    }
+
+    .footer-help {
+      margin-top: 15px;
+      color: #94a3b8;
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🐍 2 O'yinchi Iloncha Janggi</h1>
+
+  <div class="main-container">
+    <!-- 1-O'yinchi (Chap) -->
+    <div class="player-card p1">
+      <div class="player-title">1-O'YINCHI</div>
+      <div class="wins-badge">G'alabalar: <span id="p1-wins">0</span></div>
+      <div class="score-box" id="p1-score">0</div>
+      <div class="controls-hint">
+        <span>Boshqarish:</span>
+        <div class="key-row">
+          <div class="key">W</div>
+        </div>
+        <div class="key-row">
+          <div class="key">A</div>
+          <div class="key">S</div>
+          <div class="key">D</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Markaziy O'yin Maydoni -->
+    <div class="game-wrapper">
+      <canvas id="gameCanvas" width="700" height="500"></canvas>
+
+      <!-- Boshlanish / Game Over ekrani -->
+      <div id="overlay" class="overlay">
+        <h2 id="overlay-title" class="overlay-title">2 O'yinchi Maydoni</h2>
+        <p id="overlay-subtitle" class="overlay-subtitle">Boshlash uchun tugmani bosing</p>
+        <button id="start-btn" class="btn">O'yinni Boshlash</button>
+      </div>
+    </div>
+
+    <!-- 2-O'yinchi (O'ng) -->
+    <div class="player-card p2">
+      <div class="player-title">2-O'YINCHI</div>
+      <div class="wins-badge">G'alabalar: <span id="p2-wins">0</span></div>
+      <div class="score-box" id="p2-score">0</div>
+      <div class="controls-hint">
+        <span>Boshqarish:</span>
+        <div class="key-row">
+          <div class="key">↑</div>
+        </div>
+        <div class="key-row">
+          <div class="key">←</div>
+          <div class="key">↓</div>
+          <div class="key">→</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sozlamalar paneli -->
+  <div class="options-bar">
+    <div class="option-item">
+      <label for="speedSelect">Tezlik:</label>
+      <select id="speedSelect">
+        <option value="120">Sekin</option>
+        <option value="90" selected>O'rta</option>
+        <option value="65">Tez</option>
+        <option value="45">Ultra Tez 🔥</option>
+      </select>
+    </div>
+    <div class="option-item">
+      <input type="checkbox" id="wallMode" checked>
+      <label for="wallMode">Devorlar to'qnashuvi</label>
+    </div>
+    <div class="option-item">
+      <input type="checkbox" id="soundToggle" checked>
+      <label for="soundToggle">Ovozlar 🔊</label>
+    </div>
+  </div>
+
+  <div class="footer-help">
+    [Space] — Pauza / Davom ettirish | [R] — Qayta boshlash
+  </div>
+
+  <script>
+    // --- Audio Sound Synthesizer (Web Audio API) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(type) {
+      if (!document.getElementById('soundToggle').checked) return;
+      try {
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+        if (type === 'eat') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(350, now);
+          osc.frequency.exponentialRampToValueAtTime(900, now + 0.1);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } else if (type === 'golden') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(580, now);
+          osc.frequency.exponentialRampToValueAtTime(1200, now + 0.25);
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'crash') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.35);
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // --- Game Setup ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const CELL_SIZE = 20;
+    const COLS = canvas.width / CELL_SIZE; // 35
+    const ROWS = canvas.height / CELL_SIZE; // 25
+
+    let gameInterval = null;
+    let isRunning = false;
+    let isPaused = false;
+
+    // Scores & Wins
+    let p1Wins = 0;
+    let p2Wins = 0;
+
+    // Particles system
+    let particles = [];
+
+    // Snake 1 (Player 1 - Green, Left)
+    let snake1 = {
+      body: [],
+      dir: { x: 1, y: 0 },
+      nextDir: { x: 1, y: 0 },
+      score: 0,
+      color: '#10b981',
+      darkColor: '#059669',
+      glow: 'rgba(16, 185, 129, 0.4)',
+      alive: true
+    };
+
+    // Snake 2 (Player 2 - Blue, Right)
+    let snake2 = {
+      body: [],
+      dir: { x: -1, y: 0 },
+      nextDir: { x: -1, y: 0 },
+      score: 0,
+      color: '#3b82f6',
+      darkColor: '#1d4ed8',
+      glow: 'rgba(59, 130, 246, 0.4)',
+      alive: true
+    };
+
+    // Food items
+    let foods = [];
+
+    function resetGame() {
+      // P1 starts left moving right
+      snake1.body = [
+        { x: 5, y: Math.floor(ROWS / 2) },
+        { x: 4, y: Math.floor(ROWS / 2) },
+        { x: 3, y: Math.floor(ROWS / 2) }
+      ];
+      snake1.dir = { x: 1, y: 0 };
+      snake1.nextDir = { x: 1, y: 0 };
+      snake1.score = 0;
+      snake1.alive = true;
+
+      // P2 starts right moving left
+      snake2.body = [
+        { x: COLS - 6, y: Math.floor(ROWS / 2) },
+        { x: COLS - 5, y: Math.floor(ROWS / 2) },
+        { x: COLS - 4, y: Math.floor(ROWS / 2) }
+      ];
+      snake2.dir = { x: -1, y: 0 };
+      snake2.nextDir = { x: -1, y: 0 };
+      snake2.score = 0;
+      snake2.alive = true;
+
+      particles = [];
+      foods = [];
+      spawnFood();
+      spawnFood();
+      if (Math.random() < 0.5) spawnFood(true);
+
+      updateScoreUI();
+    }
+
+    function spawnFood(isGolden = false) {
+      let valid = false;
+      let newFood = {};
+      while (!valid) {
+        newFood = {
+          x: Math.floor(Math.random() * COLS),
+          y: Math.floor(Math.random() * ROWS),
+          isGolden: isGolden || (Math.random() < 0.15)
+        };
+        valid = !snake1.body.some(segment => segment.x === newFood.x && segment.y === newFood.y) &&
+                !snake2.body.some(segment => segment.x === newFood.x && segment.y === newFood.y) &&
+                !foods.some(f => f.x === newFood.x && f.y === newFood.y);
+      }
+      foods.push(newFood);
+    }
+
+    function createExplosion(x, y, color) {
+      for (let i = 0; i < 20; i++) {
+        particles.push({
+          x: (x + 0.5) * CELL_SIZE,
+          y: (y + 0.5) * CELL_SIZE,
+          vx: (Math.random() - 0.5) * 7,
+          vy: (Math.random() - 0.5) * 7,
+          radius: Math.random() * 3.5 + 2,
+          color: color,
+          alpha: 1,
+          decay: Math.random() * 0.04 + 0.02
+        });
+      }
+    }
+
+    function updateScoreUI() {
+      document.getElementById('p1-score').innerText = snake1.score;
+      document.getElementById('p2-score').innerText = snake2.score;
+      document.getElementById('p1-wins').innerText = p1Wins;
+      document.getElementById('p2-wins').innerText = p2Wins;
+    }
+
+    function stepGame() {
+      if (!isRunning || isPaused) return;
+
+      const wallMode = document.getElementById('wallMode').checked;
+
+      // Update directions
+      snake1.dir = { ...snake1.nextDir };
+      snake2.dir = { ...snake2.nextDir };
+
+      // Calculate new heads
+      let head1 = { x: snake1.body[0].x + snake1.dir.x, y: snake1.body[0].y + snake1.dir.y };
+      let head2 = { x: snake2.body[0].x + snake2.dir.x, y: snake2.body[0].y + snake2.dir.y };
+
+      // Wall handling
+      if (!wallMode) {
+        head1.x = (head1.x + COLS) % COLS;
+        head1.y = (head1.y + ROWS) % ROWS;
+        head2.x = (head2.x + COLS) % COLS;
+        head2.y = (head2.y + ROWS) % ROWS;
+      }
+
+      // Check Wall Collisions
+      let p1HitWall = wallMode && (head1.x < 0 || head1.x >= COLS || head1.y < 0 || head1.y >= ROWS);
+      let p2HitWall = wallMode && (head2.x < 0 || head2.x >= COLS || head2.y < 0 || head2.y >= ROWS);
+
+      // Check Self Collision
+      let p1HitSelf = snake1.body.some(seg => seg.x === head1.x && seg.y === head1.y);
+      let p2HitSelf = snake2.body.some(seg => seg.x === head2.x && seg.y === head2.y);
+
+      // Check Enemy Body Collision
+      let p1HitP2Body = snake2.body.some(seg => seg.x === head1.x && seg.y === head1.y);
+      let p2HitP1Body = snake1.body.some(seg => seg.x === head2.x && seg.y === head2.y);
+
+      // Check Head-to-Head Collision
+      let headToHead = (head1.x === head2.x && head1.y === head2.y) || 
+                       (head1.x === snake2.body[0].x && head1.y === snake2.body[0].y &&
+                        head2.x === snake1.body[0].x && head2.y === snake1.body[0].y);
+
+      let p1Died = p1HitWall || p1HitSelf || p1HitP2Body;
+      let p2Died = p2HitWall || p2HitSelf || p2HitP1Body;
+
+      if (headToHead) {
+        p1Died = true;
+        p2Died = true;
+      }
+
+      if (p1Died || p2Died) {
+        playSound('crash');
+        if (p1Died) createExplosion(snake1.body[0].x, snake1.body[0].y, snake1.color);
+        if (p2Died) createExplosion(snake2.body[0].x, snake2.body[0].y, snake2.color);
+        endGame(p1Died, p2Died);
+        return;
+      }
+
+      // Move Snake 1
+      snake1.body.unshift(head1);
+      let p1Ate = false;
+      for (let i = foods.length - 1; i >= 0; i--) {
+        if (foods[i].x === head1.x && foods[i].y === head1.y) {
+          const isGold = foods[i].isGolden;
+          snake1.score += isGold ? 3 : 1;
+          playSound(isGold ? 'golden' : 'eat');
+          createExplosion(head1.x, head1.y, isGold ? '#f59e0b' : '#10b981');
+          foods.splice(i, 1);
+          p1Ate = true;
+          spawnFood();
+          if (Math.random() < 0.25) spawnFood(true);
+          break;
+        }
+      }
+      if (!p1Ate) {
+        snake1.body.pop();
+      }
+
+      // Move Snake 2
+      snake2.body.unshift(head2);
+      let p2Ate = false;
+      for (let i = foods.length - 1; i >= 0; i--) {
+        if (foods[i].x === head2.x && foods[i].y === head2.y) {
+          const isGold = foods[i].isGolden;
+          snake2.score += isGold ? 3 : 1;
+          playSound(isGold ? 'golden' : 'eat');
+          createExplosion(head2.x, head2.y, isGold ? '#f59e0b' : '#3b82f6');
+          foods.splice(i, 1);
+          p2Ate = true;
+          spawnFood();
+          if (Math.random() < 0.25) spawnFood(true);
+          break;
+        }
+      }
+      if (!p2Ate) {
+        snake2.body.pop();
+      }
+
+      updateScoreUI();
+      drawGame();
+    }
+
+    function drawGame() {
+      // Clear background to clean white
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw subtle light grid
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= canvas.width; x += CELL_SIZE) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= canvas.height; y += CELL_SIZE) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      // Draw foods
+      foods.forEach(food => {
+        const cx = food.x * CELL_SIZE + CELL_SIZE / 2;
+        const cy = food.y * CELL_SIZE + CELL_SIZE / 2;
+        const radius = CELL_SIZE / 2 - 2;
+
+        ctx.save();
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = food.isGolden ? 'rgba(245, 158, 11, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+        ctx.fillStyle = food.isGolden ? '#f59e0b' : '#ef4444';
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Highlight
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(cx - 2, cy - 2, radius * 0.35, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // Draw Snake 1 (Green)
+      drawSnake(snake1, '#10b981', '#059669', 'rgba(16, 185, 129, 0.3)');
+
+      // Draw Snake 2 (Blue)
+      drawSnake(snake2, '#3b82f6', '#2563eb', 'rgba(59, 130, 246, 0.3)');
+
+      // Draw Particles
+      particles.forEach((p, index) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= p.decay;
+
+        if (p.alpha <= 0) {
+          particles.splice(index, 1);
+        } else {
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+    }
+
+    function drawSnake(snake, primaryColor, secondaryColor, glowColor) {
+      if (snake.body.length === 0) return;
+
+      snake.body.forEach((seg, index) => {
+        const isHead = index === 0;
+        const x = seg.x * CELL_SIZE;
+        const y = seg.y * CELL_SIZE;
+        const radius = 6;
+
+        ctx.save();
+        if (isHead) {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = glowColor;
+          ctx.fillStyle = primaryColor;
+        } else {
+          ctx.fillStyle = index % 2 === 0 ? primaryColor : secondaryColor;
+        }
+
+        // Rounded rect for snake segment
+        ctx.beginPath();
+        ctx.roundRect(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2, isHead ? 8 : radius);
+        ctx.fill();
+
+        // Draw eyes on head
+        if (isHead) {
+          ctx.fillStyle = '#ffffff';
+          let eye1 = { x: 0, y: 0 };
+          let eye2 = { x: 0, y: 0 };
+          
+          if (snake.dir.x === 1) { // Right
+            eye1 = { x: x + 14, y: y + 5 };
+            eye2 = { x: x + 14, y: y + 13 };
+          } else if (snake.dir.x === -1) { // Left
+            eye1 = { x: x + 4, y: y + 5 };
+            eye2 = { x: x + 4, y: y + 13 };
+          } else if (snake.dir.y === -1) { // Up
+            eye1 = { x: x + 5, y: y + 4 };
+            eye2 = { x: x + 13, y: y + 4 };
+          } else { // Down
+            eye1 = { x: x + 5, y: y + 14 };
+            eye2 = { x: x + 13, y: y + 14 };
+          }
+
+          ctx.beginPath();
+          ctx.arc(eye1.x, eye1.y, 2.5, 0, Math.PI * 2);
+          ctx.arc(eye2.x, eye2.y, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(eye1.x, eye1.y, 1.2, 0, Math.PI * 2);
+          ctx.arc(eye2.x, eye2.y, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      });
+    }
+
+    function endGame(p1Died, p2Died) {
+      clearInterval(gameInterval);
+      isRunning = false;
+
+      const overlay = document.getElementById('overlay');
+      const title = document.getElementById('overlay-title');
+      const subtitle = document.getElementById('overlay-subtitle');
+      const btn = document.getElementById('start-btn');
+
+      if (p1Died && p2Died) {
+        title.innerHTML = "🤝 Durang!";
+        title.style.color = "#d97706";
+        subtitle.innerText = "Ikkala iloncha ham to'qnashib ketdi!";
+      } else if (p1Died) {
+        p2Wins++;
+        title.innerHTML = "🏆 2-O'yinchi G'alaba Qozondi!";
+        title.style.color = "var(--p2-color)";
+        subtitle.innerText = "1-O'yinchi halokatga uchradi!";
+      } else {
+        p1Wins++;
+        title.innerHTML = "🏆 1-O'yinchi G'alaba Qozondi!";
+        title.style.color = "var(--p1-color)";
+        subtitle.innerText = "2-O'yinchi halokatga uchradi!";
+      }
+
+      updateScoreUI();
+      btn.innerText = "Yana O'ynash (R)";
+      overlay.classList.remove('hidden');
+
+      const particleAnim = setInterval(() => {
+        if (particles.length > 0) {
+          drawGame();
+        } else {
+          clearInterval(particleAnim);
+        }
+      }, 1000 / 60);
+    }
+
+    function startGame() {
+      resetGame();
+      document.getElementById('overlay').classList.add('hidden');
+      isRunning = true;
+      isPaused = false;
+      const speed = parseInt(document.getElementById('speedSelect').value);
+      if (gameInterval) clearInterval(gameInterval);
+      gameInterval = setInterval(stepGame, speed);
+    }
+
+    function togglePause() {
+      if (!isRunning) return;
+      isPaused = !isPaused;
+      const overlay = document.getElementById('overlay');
+      const title = document.getElementById('overlay-title');
+      const subtitle = document.getElementById('overlay-subtitle');
+      const btn = document.getElementById('start-btn');
+
+      if (isPaused) {
+        title.innerHTML = "⏸️ PAUZA";
+        title.style.color = "#7c3aed";
+        subtitle.innerText = "Davom ettirish uchun Space yoki tugmani bosing";
+        btn.innerText = "Davom ettirish";
+        overlay.classList.remove('hidden');
+      } else {
+        overlay.classList.add('hidden');
+      }
+    }
+
+    // --- Controls Listener ---
+    window.addEventListener('keydown', (e) => {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+        e.preventDefault();
+      }
+
+      if (e.code === 'Space') {
+        if (!isRunning) {
+          startGame();
+        } else {
+          togglePause();
+        }
+        return;
+      }
+
+      if (e.key.toLowerCase() === 'r') {
+        startGame();
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+      if (key === 'w' && snake1.dir.y === 0) snake1.nextDir = { x: 0, y: -1 };
+      if (key === 's' && snake1.dir.y === 0) snake1.nextDir = { x: 0, y: 1 };
+      if (key === 'a' && snake1.dir.x === 0) snake1.nextDir = { x: -1, y: 0 };
+      if (key === 'd' && snake1.dir.x === 0) snake1.nextDir = { x: 1, y: 0 };
+
+      if (e.key === 'ArrowUp' && snake2.dir.y === 0) snake2.nextDir = { x: 0, y: -1 };
+      if (e.key === 'ArrowDown' && snake2.dir.y === 0) snake2.nextDir = { x: 0, y: 1 };
+      if (e.key === 'ArrowLeft' && snake2.dir.x === 0) snake2.nextDir = { x: -1, y: 0 };
+      if (e.key === 'ArrowRight' && snake2.dir.x === 0) snake2.nextDir = { x: 1, y: 0 };
+    });
+
+    document.getElementById('start-btn').addEventListener('click', () => {
+      if (isPaused) {
+        togglePause();
+      } else {
+        startGame();
+      }
+    });
+
+    document.getElementById('speedSelect').addEventListener('change', () => {
+      if (isRunning && !isPaused) {
+        clearInterval(gameInterval);
+        const speed = parseInt(document.getElementById('speedSelect').value);
+        gameInterval = setInterval(stepGame, speed);
+      }
+    });
+
+    // Initial draw
+    resetGame();
+    drawGame();
+  </script>
+</body>
+</html>
